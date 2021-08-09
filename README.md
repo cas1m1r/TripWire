@@ -50,3 +50,5 @@ void lastOpened(const char* fileName, char buff[]){
 ```
 
 ### Monitoring this over time
+Here's how it looks on the commandline detecting file access and modification. 
+![usage](https://raw.githubusercontent.com/scott-robbins/TripWire/master/ex.png)
