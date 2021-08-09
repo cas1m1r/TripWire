@@ -1,4 +1,4 @@
-import multiprocessing
+from threading import Thread
 from ctypes import *
 import datetime
 import utils
@@ -78,7 +78,7 @@ def verifyFiles(lb,timestamps):
 			changes = True
 	return timestamps, changes
 
-def setupFileList():
+def setupFileListCLI():
 	adding = True
 	filenames = []
 	while adding:
@@ -90,6 +90,11 @@ def setupFileList():
 		if f.upper() == 'Q':
 			adding = False
 	return filenames
+
+def setupFileListGUI():
+	cmd = "zenity --file-selection"
+	return utils.cmd(cmd,False)
+
 ## End of Utility Methods
 
 class TripWire:
@@ -100,7 +105,8 @@ class TripWire:
 		self.lib = load_tripwires()
 		self.targets = self.checkfiles(targetFiles)
 		self.watching = True
-		
+		# TODO: configure alerting system besides printing to console
+		# And do so based on a configuration file. 
 		# run it
 		self.run()
 
@@ -125,36 +131,41 @@ class TripWire:
 				try:
 					self.targets, status = verifyFiles(self.lib, self.targets)
 					if status:
-						self.findChangedFile(self.targets)
-				except multiprocessing.TimeoutError:
+						self.findChangedFile()
+				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
+					self.watching = False
 					pass
 		except KeyboardInterrupt:
 			pass
 
-	def findChangedFile(self, fdict):
-		for fname in fdict.keys():
-			if fname not in self.targets.keys():
-				continue
-			if fdict[fname]['wasOpened']:
+
+	def findChangedFile(self):
+		for fname in self.targets.keys():
+			if self.targets[fname]['wasOpened']:
 				print('\033[1m[!]\033[31m %s was Opened \033[0m' % fname)
 				self.targets[fname]['wasOpened'] = True
-			if fdict[fname]['wasModified']:
+			if self.targets[fname]['wasModified']:
 				print('\033[1m[!]\033[31m %s was Modified \033[0m' % fname)
 				self.targets[fname]['wasModified'] = True
 
 
 def main():
 	if not os.path.isfile(os.path.join(os.getcwd(),'filelist.txt')):
-		try:
-			file_list = setupFileList()
-		except KeyboardInterrupt:
-			pass
+		if '-cli' in sys.argv:
+			file_list = setupFileListCLI()
+		else:
+			file_list = setupFileListGUI()
 	else:
 		file_list = utils.swap('filelist.txt',False)
 
-	# Now setup the tripwire to monitor the filelist
-	agent = TripWire(file_list)
+	if '-bg' in sys.argv:
+		agent = Thread(target=TripWire, args=(file_list))
+		agent.setDaemon(True)
+		agent.start()
+	else:
+		# Now setup the tripwire to monitor the filelist
+		agent = TripWire(file_list)
 
 if __name__ == '__main__':
 	main()
