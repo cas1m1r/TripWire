@@ -144,11 +144,11 @@ class TripWire:
 						# alert discord bot if integrated
 						if self.hasBot:
 							msg = '**Files Accessed:**\n```%s```' % utils.arr2str(filesTouched)
-							msg += '\n%s' % USERNAME
 							print('[>] Sending Discord Message')
 							data = {'content': 
 									msg}
 							DiscordMsg('text', data).send_message()
+					time.sleep(0.001)
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False

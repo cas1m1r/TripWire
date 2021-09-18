@@ -26,4 +26,4 @@ class DiscordMsg:
 								rate_limit_retry=True,
 								content=self.data['content'])
 		response = webhook.execute()
-		# print('[+] Received Reply: %s' % response)
+
