@@ -62,3 +62,8 @@ def create_timestamp():
     timestamp = hr + ':' + min + ':' + sec
     return date, timestamp
 
+def arr2str(array):
+	out = ''
+	for element in array:
+		out += element + '\n'
+	return out 
