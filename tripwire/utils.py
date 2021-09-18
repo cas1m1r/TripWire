@@ -63,7 +63,7 @@ def create_timestamp():
     return date, timestamp
 
 def arr2str(array):
-	out = ''
+	out = b''
 	for element in array:
-		out += element + '\n'
+		out += element + b'\n'
 	return out 

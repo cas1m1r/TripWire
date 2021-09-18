@@ -142,8 +142,10 @@ class TripWire:
 						filesTouched = self.findChangedFile()
 						# alert discord bot if integrated
 						if self.hasBot:
-							data = {'content': utils.arr2str(filesTouched)}
-							DiscordMsg('text', data)
+							print('[>] Sending Discord Message')
+							data = {'content': 
+									'**Files Accessed:**\n```%s```' % utils.arr2str(filesTouched)}
+							DiscordMsg('text', data).send_message()
 
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
@@ -159,11 +161,9 @@ class TripWire:
 			if self.targets[fname]['wasOpened']:
 				print('\033[1m[!]\033[31m %s was Opened \033[0m' % fname)
 				self.targets[fname]['wasOpened'] = True
-				open('.alerts/alarm','w').write(fname)
 				triggered.append(fname)
 			if self.targets[fname]['wasModified']:
 				print('\033[1m[!]\033[31m %s was Modified \033[0m' % fname)
-				open('.alerts/alarm','w').write(fname)
 				self.targets[fname]['wasModified'] = True
 				triggered.append(fname)
 		return triggered
