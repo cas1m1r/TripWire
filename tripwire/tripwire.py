@@ -10,6 +10,7 @@ import sys
 import os
 
 load_dotenv()
+USERNAME = os.getenv('USERNAME')
 yr = 2021
 csrc = 'tripwirelib.so'
 csrcWin = 'wirelib.dll'
@@ -142,11 +143,12 @@ class TripWire:
 						filesTouched = self.findChangedFile()
 						# alert discord bot if integrated
 						if self.hasBot:
+							msg = '**Files Accessed:**\n```%s```' % utils.arr2str(filesTouched)
+							msg += '\n%s' % USERNAME
 							print('[>] Sending Discord Message')
 							data = {'content': 
-									'**Files Accessed:**\n```%s```' % utils.arr2str(filesTouched)}
+									msg}
 							DiscordMsg('text', data).send_message()
-
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False

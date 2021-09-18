@@ -24,6 +24,6 @@ class DiscordMsg:
 		webhook = DiscordWebhook(
 								url=WEBHOOK, 
 								rate_limit_retry=True,
-								content=self.data['content'].encode('utf-8'))
+								content=self.data['content'])
 		response = webhook.execute()
 		# print('[+] Received Reply: %s' % response)
