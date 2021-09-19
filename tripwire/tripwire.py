@@ -10,7 +10,6 @@ import sys
 import os
 
 load_dotenv()
-USERNAME = os.getenv('USERNAME')
 yr = 2021
 csrc = 'tripwirelib.so'
 csrcWin = 'wirelib.dll'
@@ -148,7 +147,6 @@ class TripWire:
 							data = {'content': 
 									msg}
 							DiscordMsg('text', data).send_message()
-					time.sleep(0.001)
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
