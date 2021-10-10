@@ -1,6 +1,4 @@
-from dotenv import load_dotenv
 from threading import Thread
-from disco import DiscordMsg
 from ctypes import *
 import datetime
 import utils
@@ -9,7 +7,6 @@ import time
 import sys
 import os
 
-load_dotenv()
 yr = 2021
 csrc = 'tripwirelib.so'
 csrcWin = 'wirelib.dll'
@@ -88,10 +85,10 @@ def setupFileListCLI():
 		f = str(raw_input('Enter a file to monitor [Or enter q to quit]:\n'))
 		if os.path.isfile(f):
 			filenames.append(f)
+		elif f.upper() == 'Q':
+			adding = False
 		else:
 			print('[!] Unable to find that file')
-		if f.upper() == 'Q':
-			adding = False
 	return filenames
 
 def setupFileListGUI():
@@ -102,21 +99,13 @@ def setupFileListGUI():
 
 class TripWire:
 
-	def __init__(self, targetFiles, useBot):
+	def __init__(self, targetFiles):
 		self.dstart, self.tstart = utils.create_timestamp()
 		# setup which files to be watching
 		self.lib = load_tripwires()
 		self.targets = self.checkfiles(targetFiles)
 		self.watching = True
-		# TODO: configure alerting system besides printing to console
-		if useBot:
-			# report file alerts to a discord bot integration 
-			self.hasBot = True
-			if not os.path.isdir('.alerts'):
-				os.mkdir('.alerts')
-		# run it
-		self.run()
-
+		
 
 	def checkfiles(self, filesIn):
 		filesFound = {}
@@ -139,14 +128,9 @@ class TripWire:
 				try:
 					self.targets, status = verifyFiles(self.lib, self.targets)
 					if status:
-						filesTouched = self.findChangedFile()
-						# alert discord bot if integrated
-						if self.hasBot:
-							msg = '**Files Accessed:**\n```%s```' % utils.arr2str(filesTouched)
-							print('[>] Sending Discord Message')
-							data = {'content': 
-									msg}
-							DiscordMsg('text', data).send_message()
+						self.findChangedFile()
+					# kinda thrashing the CPU 
+					time.sleep(0.001)
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
@@ -156,20 +140,16 @@ class TripWire:
 
 
 	def findChangedFile(self):
-		triggered = []
 		for fname in self.targets.keys():
 			if self.targets[fname]['wasOpened']:
 				print('\033[1m[!]\033[31m %s was Opened \033[0m' % fname)
 				self.targets[fname]['wasOpened'] = True
-				triggered.append(fname)
 			if self.targets[fname]['wasModified']:
 				print('\033[1m[!]\033[31m %s was Modified \033[0m' % fname)
 				self.targets[fname]['wasModified'] = True
-				triggered.append(fname)
-		return triggered
+
 
 def main():
-	bot = False
 	if not os.path.isfile(os.path.join(os.getcwd(),'filelist.txt')):
 		if '-cli' in sys.argv:
 			file_list = setupFileListCLI()
@@ -178,17 +158,9 @@ def main():
 	else:
 		file_list = utils.swap('filelist.txt',False)
 
-	if '-bot' in sys.argv:
-		bot = True
-
-
-	if '-bg' in sys.argv:
-		agent = Thread(target=TripWire, args=(file_list, bot))
-		agent.setDaemon(True)
-		agent.start()
-	else:
-		# Now setup the tripwire to monitor the filelist
-		agent = TripWire(file_list,bot)
+	# Now setup the tripwire to monitor the filelist
+	agent = TripWire(file_list)
+	agent.run()
 
 if __name__ == '__main__':
 	main()

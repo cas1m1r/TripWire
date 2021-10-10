@@ -1,6 +1,9 @@
 #include <time.h>
 #include <stdio.h>
+#include <wchar.h>
+#include <string.h>
 #include <stddef.h>
+
 #include <stdbool.h>
 #include <sys/stat.h>
 #define YR
@@ -72,6 +75,36 @@ void lastOpened(const char* fileName, char buff[]){
 	tinfo = localtime(&(finfo.st_atime));
 	// convert to timestamp
 	strftime(buff, 21, "%b %d %H:%M", tinfo);
+}
+
+/* return timestamp of time file was last accessed */
+void lastAccessed(const char *fileName, char buff[]){
+	struct stat finfo;
+	struct tm * tinfo;
+	// Stat file name into struct, and convert to useful timestamp
+	stat(fileName, &finfo); 
+	tinfo = localtime (&(finfo.st_atime)); 
+	strftime(buff, 21, "%b %d %H:%M", tinfo); 
+}
+
+/* (return user id of the file */
+signed int getFileUID(const char* filename){
+	struct stat finfo;		// file info
+
+	if (stat(filename, &finfo) == 0)
+		return finfo.st_uid;
+	else
+		return -1;
+}
+
+/* return number of links file has associated with it */
+signed int getNumLinks(const char* filename){
+	struct stat finfo;		// file info
+
+	if (stat(filename, &finfo) == 0)
+		return (finfo.st_nlink);
+	else
+		return -1;
 }
 
 /* return timestamp of time file was  */
