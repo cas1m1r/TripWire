@@ -85,10 +85,10 @@ def setupFileListCLI():
 		f = str(raw_input('Enter a file to monitor [Or enter q to quit]:\n'))
 		if os.path.isfile(f):
 			filenames.append(f)
+		elif f.upper() == 'Q':
+			adding = False
 		else:
 			print('[!] Unable to find that file')
-		if f.upper() == 'Q':
-			adding = False
 	return filenames
 
 def setupFileListGUI():
@@ -105,10 +105,7 @@ class TripWire:
 		self.lib = load_tripwires()
 		self.targets = self.checkfiles(targetFiles)
 		self.watching = True
-		# TODO: configure alerting system besides printing to console
-		# And do so based on a configuration file. 
-		# run it
-		self.run()
+		
 
 	def checkfiles(self, filesIn):
 		filesFound = {}
@@ -132,6 +129,8 @@ class TripWire:
 					self.targets, status = verifyFiles(self.lib, self.targets)
 					if status:
 						self.findChangedFile()
+					# kinda thrashing the CPU 
+					time.sleep(0.001)
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
@@ -159,13 +158,9 @@ def main():
 	else:
 		file_list = utils.swap('filelist.txt',False)
 
-	if '-bg' in sys.argv:
-		agent = Thread(target=TripWire, args=(file_list))
-		agent.setDaemon(True)
-		agent.start()
-	else:
-		# Now setup the tripwire to monitor the filelist
-		agent = TripWire(file_list)
+	# Now setup the tripwire to monitor the filelist
+	agent = TripWire(file_list)
+	agent.run()
 
 if __name__ == '__main__':
 	main()
