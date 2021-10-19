@@ -83,7 +83,7 @@ void lastAccessed(const char *fileName, char buff[]){
 	struct tm * tinfo;
 	// Stat file name into struct, and convert to useful timestamp
 	stat(fileName, &finfo); 
-	tinfo = localtime (&(finfo.st_atime)); 
+	tinfo = localtime (&(finfo.st_ctime)); 
 	strftime(buff, 21, "%b %d %H:%M", tinfo); 
 }
 

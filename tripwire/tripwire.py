@@ -32,7 +32,13 @@ def load_tripwires():
 
 def compile_linux():
 	if not os.path.isfile(csrc) and os.path.isfile('wiretap.c'):
-		cpile = 'gcc -shared -fPIC -o tripwirelib.so wiretap.c'
+		arch = utils.cmd('',False).pop().decode()
+		# if on raspberry pi or other 32bit systems use:
+		# gcc -shared -fPIC -mbe32 -o tripwirelib.so wiretap.c
+		if arch == 'x86_64':
+			cpile = 'gcc -shared -fPIC -o tripwirelib.so wiretap.c'
+		elif arch == 'armv7l':
+			cpile = 'gcc -shared -fPIC -mbe32 -o tripwirelib.so wiretap.c'
 		os.system(cpile)
 
 def cbuff2timestamp(cbuff):
@@ -68,6 +74,8 @@ def verifyFiles(lb,timestamps):
 	for filename in timestamps.keys():
 		lmodified = getLastModified(lb,filename)
 		laccessed = getLastOpened(lb,filename)
+		lmod = timestamps[filename]['modified']
+		lacc = timestamps[filename]['opened']	
 		if laccessed != timestamps[filename]['opened']:
 			timestamps[filename]['wasOpened'] = True
 			timestamps[filename]['opened'] = laccessed
@@ -117,6 +125,8 @@ class TripWire:
 				filesFound[filename]['modified'] = getLastModified(self.lib,filename)
 				filesFound[filename]['wasOpened'] = False
 				filesFound[filename]['wasModified'] = False
+			else:
+				print('[!] Unable to find: %s' % filename)	
 		return filesFound
 
 	def __str__(self):
@@ -125,12 +135,13 @@ class TripWire:
 	def run(self):
 		try:
 			while self.watching:
+				file_list = utils.swap('filelist.txt',False)
 				try:
 					self.targets, status = verifyFiles(self.lib, self.targets)
 					if status:
 						self.findChangedFile()
 					# kinda thrashing the CPU 
-					time.sleep(0.001)
+					time.sleep(1)
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
