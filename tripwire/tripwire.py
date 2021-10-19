@@ -32,7 +32,7 @@ def load_tripwires():
 
 def compile_linux():
 	if not os.path.isfile(csrc) and os.path.isfile('wiretap.c'):
-		arch = utils.cmd('',False).pop().decode()
+		arch = utils.cmd('arch',False).pop().decode()
 		# if on raspberry pi or other 32bit systems use:
 		# gcc -shared -fPIC -mbe32 -o tripwirelib.so wiretap.c
 		if arch == 'x86_64':
