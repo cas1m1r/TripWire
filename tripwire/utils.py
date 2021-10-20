@@ -62,3 +62,15 @@ def create_timestamp():
     timestamp = hr + ':' + min + ':' + sec
     return date, timestamp
 
+def arr2str(content):
+	result = b''
+	for element in content:
+		result += element.decode() + '\n'
+	return result
+
+def arr2chstr(content):
+	result = ''
+	for element in content:
+		result += element.decode() + ' '
+	return result
+
