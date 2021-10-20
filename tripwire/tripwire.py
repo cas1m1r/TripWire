@@ -46,17 +46,17 @@ def cbuff2timestamp(cbuff):
 	return datetime.datetime(yr,mon,day, int(t[0]), int(t[1]))
 
 def getLastModified(lb, target):
-	cbuff = create_string_buffer(32)
+	cbuff = create_string_buffer(21)
 	lb.lastModified(target, cbuff)
 	return cbuff2timestamp(cbuff)	
 
 def getLastOpened(lb, target):
-	cbuff = create_string_buffer(32)
+	cbuff = create_string_buffer(21)
 	lb.lastOpened(target, cbuff)
 	return cbuff2timestamp(cbuff)
 
 def getLastAccessed(lb, target):
-	cbuff = create_string_buffer(32)
+	cbuff = create_string_buffer(21)
 	lb.lastAccessed(target, cbuff)
 	return cbuff2timestamp(cbuff)
 
@@ -77,6 +77,8 @@ def verifyFiles(lb,timestamps):
 		lmodified = getLastModified(lb,filename)
 		lopened = getLastOpened(lb,filename)
 		laccessed = getLastAccessed(lb, filename)
+		# For Debugging:
+		# print(f'{filename}  {lmodified}  {laccessed}  {lopened} ')
 		if lopened != timestamps[filename]['opened']:
 			timestamps[filename]['wasOpened'] = True
 			timestamps[filename]['opened'] = lopened
@@ -125,6 +127,8 @@ class TripWire:
 			self.hasBot = True
 			if not os.path.isdir('.alerts'):
 				os.mkdir('.alerts')
+		else:
+			self.hasBot = True
 		# run it
 		self.run()
 
@@ -150,6 +154,7 @@ class TripWire:
 		try:
 			while self.watching:
 				try:
+					time.sleep(.1)
 					self.targets, status = verifyFiles(self.lib, self.targets)
 					if status:
 						filesTouched = self.findChangedFile()
@@ -160,6 +165,8 @@ class TripWire:
 							data = {'content': 
 									msg}
 							DiscordMsg('text', data).send_message()
+							continue
+						# self.targets = self.checkfiles(list(self.targets.keys()))
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
