@@ -69,7 +69,7 @@ class Tower:
 		self.fs = self.setup()
 		# Starting Monitoring
 		# TODO: Write Monitor Loop [Similar to setup]
-		
+		self.monitor()
 
 	def configure(self, opts):
 		# Check if user has set verbosity level
@@ -119,6 +119,26 @@ class Tower:
 			print('[>] Finished Checking All Files [%ss elapsed]' % self.dt)
 		return states
 	
+	def monitor(self):
+		startpt = time.time()
+		# pool = multiprocessing.Pool(int(self.n_threads/3))
+		try:
+			while not self.shutdown:
+				# Iterate through every file indexed
+				for filename in self.filesystem['file']:
+					try:
+						# comparison = pool.apply_async(validate_file, (self.fs, filename))
+						# modified, self.fs = comparison.get(1)
+						modified, self.fs = validate_file(self.fs, filename)
+						if modified:
+							print('[x] %s touched!' % filename)
+					except KeyError:
+						pass
+				time.sleep(0.01)
+
+		except KeyboardInterrupt:
+			self.shutdown = True
+
 
 def main():
 	uname = utils.cmd('whoami',False).pop()
