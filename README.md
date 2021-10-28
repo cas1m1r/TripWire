@@ -52,3 +52,7 @@ void lastOpened(const char* fileName, char buff[]){
 ### Monitoring this over time
 Here's how it looks on the commandline detecting file access and modification. 
 ![usage](https://raw.githubusercontent.com/scott-robbins/TripWire/master/ex.png)
+
+### Discord Integration
+Adding a `.env` file with a discord webhook URL, you can have the code ping you when any instance running the software is triggered. Here's an instance of running the code on some Raspberry Pi's and triggering them on the LAN.
+![test](https://raw.githubusercontent.com/scott-robbins/TripWire/master/TripWireAlerts.gif)
