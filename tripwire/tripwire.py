@@ -9,10 +9,14 @@ import time
 import sys
 import os
 
-load_dotenv()
+
+INSTALL_PATH = './'
 yr = 2021
-csrc = 'tripwirelib.so'
-csrcWin = 'wirelib.dll'
+csrc = os.path.join(INSTALL_PATH,'tripwirelib.so')
+csrcWin = os.path.join(INSTALL_PATH,'wirelib.dll')
+sys.path.insert(0,INSTALL_PATH)
+load_dotenv()
+
 months = {b'Jan':1,b'Feb':2,
 		  b'Mar':3,b'Apr':4,
 		  b'May':5,b'Jun':6,
@@ -24,7 +28,7 @@ months = {b'Jan':1,b'Feb':2,
 def load_tripwires():
 	if os.name == 'posix':
 		compile_linux()
-		return cdll.LoadLibrary("./%s" % csrc)
+		return cdll.LoadLibrary("%s" % csrc)
 	elif os.name == 'nt':
 		if not os.path.isfile(csrcWin):
 			print('[!] Missing %s' % csrcWin)
