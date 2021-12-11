@@ -9,8 +9,12 @@ import time
 import sys
 import os
 
+<<<<<<< HEAD
 
 INSTALL_PATH = './'
+=======
+load_dotenv()
+>>>>>>> 36e593b0fcc4342e27df613ec55d9124f6a88778
 yr = 2021
 csrc = os.path.join(INSTALL_PATH,'tripwirelib.so')
 csrcWin = os.path.join(INSTALL_PATH,'wirelib.dll')
