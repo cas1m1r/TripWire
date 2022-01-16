@@ -3,6 +3,7 @@ from threading import Thread
 from disco import DiscordMsg
 from ctypes import *
 import datetime
+import socket
 import utils
 import json
 import time
@@ -16,7 +17,7 @@ csrc = os.path.join(INSTALL_PATH,'tripwirelib.so')
 csrcWin = os.path.join(INSTALL_PATH,'wirelib.dll')
 sys.path.insert(0,INSTALL_PATH)
 load_dotenv()
-
+hostname = socket.gethostname()
 months = {b'Jan':1,b'Feb':2,
 		  b'Mar':3,b'Apr':4,
 		  b'May':5,b'Jun':6,
@@ -164,13 +165,13 @@ class TripWire:
 						filesTouched = self.findChangedFile()
 						# alert discord bot if integrated
 						if self.hasBot:
-							msg = '**Files Accessed:**\n```%s```' % '\n'.join(filesTouched)
+							touched = '\n'.join(list(set(filesTouched)))	
+							msg = '**Files Accessed on %s:**\n```%s```' % (hostname,touched)
 							print('[>] Sending Discord Message')
 							data = {'content': 
 									msg}
 							DiscordMsg('text', data).send_message()
 							continue
-						# self.targets = self.checkfiles(list(self.targets.keys()))
 				except KeyboardInterrupt:
 					print('[!] Error Checking Files')
 					self.watching = False
